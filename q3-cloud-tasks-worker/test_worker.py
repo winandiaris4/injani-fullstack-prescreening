@@ -6,10 +6,10 @@ Strategi: Inject header Cloud Tasks secara manual ke FastAPI TestClient
 (tidak butuh GCP atau emulator running).
 """
 
-import pytest
 from fastapi.testclient import TestClient
+import pytest
 
-from worker import app, processed_tasks, dead_letter_queue
+from worker import app, dead_letter_queue, processed_tasks
 
 
 @pytest.fixture(autouse=True)

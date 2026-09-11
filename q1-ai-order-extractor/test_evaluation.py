@@ -14,12 +14,14 @@ import json
 import os
 from pathlib import Path
 
+from fastapi.testclient import TestClient
 import pytest
+
+from app import app
+from extractor import MessageExtraction, OrderExtractor
 
 # Force MOCK_MODE so tests never need Ollama
 os.environ.setdefault("MOCK_MODE", "true")
-
-from extractor import OrderExtractor, MessageExtraction  # noqa: E402
 
 
 # ─── Fixtures ─────────────────────────────────────────────────────────────────
@@ -143,9 +145,6 @@ class TestWebhookEndpoint:
     """Integration tests for the FastAPI /webhook endpoint."""
 
     def test_webhook_returns_200_with_valid_message(self):
-        from fastapi.testclient import TestClient
-        from app import app
-
         client = TestClient(app)
         response = client.post("/webhook", json={"message": "I'd like 3 bags of cement"})
         assert response.status_code == 200
@@ -155,17 +154,11 @@ class TestWebhookEndpoint:
         assert "confidence" in data
 
     def test_webhook_returns_422_with_empty_message(self):
-        from fastapi.testclient import TestClient
-        from app import app
-
         client = TestClient(app)
         response = client.post("/webhook", json={})
         assert response.status_code == 422
 
     def test_health_endpoint(self):
-        from fastapi.testclient import TestClient
-        from app import app
-
         client = TestClient(app)
         response = client.get("/health")
         assert response.status_code == 200

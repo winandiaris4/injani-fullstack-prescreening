@@ -6,10 +6,9 @@ extracts order intent via LLM (or mock), and returns structured JSON.
 
 import os
 
+from extractor import MessageExtraction, OrderExtractor
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-
-from extractor import OrderExtractor, MessageExtraction
 
 app = FastAPI(title="Injani AI Order Extractor", version="1.0.0")
 

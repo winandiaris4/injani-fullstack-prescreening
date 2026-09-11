@@ -8,10 +8,13 @@ Menggunakan fakeredis — tidak butuh Redis real.
 
 import uuid
 
-import pytest
 import fakeredis
+from fastapi.testclient import TestClient
+import pytest
 
-from idempotency import start_task_with_idempotency, get_task_ref, reset_redis
+from app import app
+from idempotency import get_task_ref, reset_redis, start_task_with_idempotency
+from worker_arq import generate_pdf_report, send_email_notification
 
 
 @pytest.fixture(autouse=True)
@@ -97,9 +100,6 @@ class TestFastAPIWorkflow:
     """
 
     def test_start_task_returns_202(self):
-        from fastapi.testclient import TestClient
-        from app import app
-
         client = TestClient(app)
         response = client.post("/tasks/start", json={"duration": 0.1})
         assert response.status_code == 202
@@ -108,9 +108,6 @@ class TestFastAPIWorkflow:
         assert data["status"] == "QUEUED"
 
     def test_task_status_endpoint_returns_task(self):
-        from fastapi.testclient import TestClient
-        from app import app
-
         client = TestClient(app)
         # Create task
         create_resp = client.post("/tasks/start", json={"duration": 0.1})
@@ -124,17 +121,11 @@ class TestFastAPIWorkflow:
         assert data["status"] in ("QUEUED", "RUNNING", "DONE")
 
     def test_unknown_task_status_returns_404(self):
-        from fastapi.testclient import TestClient
-        from app import app
-
         client = TestClient(app)
         response = client.get("/tasks/non-existent-task-id/status")
         assert response.status_code == 404
 
     def test_health_endpoint(self):
-        from fastapi.testclient import TestClient
-        from app import app
-
         client = TestClient(app)
         response = client.get("/health")
         assert response.status_code == 200
@@ -148,8 +139,6 @@ class TestARQWorker:
     @pytest.mark.asyncio
     async def test_generate_pdf_report_completes(self):
         """ARQ task function should complete and return expected result."""
-        from worker_arq import generate_pdf_report
-
         ctx: dict = {}  # No Redis in this unit test
         result = await generate_pdf_report(ctx, "report-001", "2026-09-11")
 
@@ -160,8 +149,6 @@ class TestARQWorker:
     @pytest.mark.asyncio
     async def test_send_email_completes(self):
         """Email notification task should complete successfully."""
-        from worker_arq import send_email_notification
-
         ctx: dict = {}
         result = await send_email_notification(
             ctx,
