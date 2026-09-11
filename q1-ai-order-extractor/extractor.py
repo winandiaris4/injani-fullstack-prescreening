@@ -85,9 +85,15 @@ class OrderExtractor:
         """
         msg_lower = message.lower()
 
-        # Intent detection
-        complaint_keywords = ["broken", "damaged", "wrong", "complaint", "issue", "problem", "missing"]
-        inquiry_keywords = ["available", "stock", "price", "do you have", "how much", "is there", "check"]
+        # Intent detection (English & Indonesian keywords)
+        complaint_keywords = [
+            "broken", "damaged", "wrong", "complaint", "issue", "problem", "missing",
+            "rusak", "pecah", "salah", "komplain", "kurang", "cacat", "kecewa", "bocor",
+        ]
+        inquiry_keywords = [
+            "available", "stock", "price", "do you have", "how much", "is there", "check",
+            "stok", "harga", "berapa", "ada ", "ready", "apakah", "tanya", "cek",
+        ]
 
         if any(kw in msg_lower for kw in complaint_keywords):
             intent: Literal["order", "inquiry", "complaint"] = "complaint"
@@ -97,12 +103,13 @@ class OrderExtractor:
             intent = "order"
 
         # Simple item/quantity extraction via regex
-        # Matches patterns like: "3 bags of cement", "2 tins of paint", "10 pieces of tile"
+        # Matches patterns like: "3 bags of cement", "5 sak semen", "2 kaleng cat"
         pattern = re.compile(
             r"(\d+(?:\.\d+)?)\s+"
-            r"(bags?|tins?|pieces?|pcs?|units?|boxes?|rolls?|sheets?|kg|liters?|litres?|meters?|m)?\s*"
-            r"(?:of\s+)?"
-            r"([a-zA-Z][a-zA-Z\s]{1,30}?)(?=\s*(?:and|,|$|\.))",
+            r"(bags?|tins?|pieces?|pcs?|units?|boxes?|rolls?|sheets?|kg|liters?|litres?|meters?|m|"
+            r"sak|kaleng|batang|truk|lembar|buah|dus|kubik)?\s*"
+            r"(?:of\s+|dari\s+)?"
+            r"([a-zA-Z][a-zA-Z\s]{1,30}?)(?=\s*(?:and|,|$|\.|ya|tolong|per))",
             re.IGNORECASE,
         )
         items: list[OrderItem] = []
@@ -116,19 +123,21 @@ class OrderExtractor:
 
         # If no structured items found, extract nouns as best-effort
         if not items:
-            # Grab any capitalised or meaningful nouns after "have" / "about" / generic
             noun_pattern = re.compile(r"\b([a-zA-Z]{3,}(?:\s+[a-zA-Z]{3,})?)\b")
             stopwords = {
                 "the", "and", "for", "you", "are", "was", "have", "with",
                 "that", "this", "from", "all", "can", "been", "has", "had",
                 "please", "hello", "would", "like", "could", "about", "your",
                 "last", "week", "they", "were",
+                "ada", "mau", "saya", "tolong", "beli", "pesan", "harga",
+                "berapa", "apakah", "tidak", "yang", "terima", "warnanya",
+                "sudah", "bisa", "kirim", "untuk",
             }
             for m in noun_pattern.finditer(message):
                 word = m.group(1).lower()
                 if word not in stopwords and len(word) > 3:
                     items.append(OrderItem(name=word, quantity=None, unit=None))
-                    break  # take first meaningful noun only
+                    break
 
         confidence: Literal["high", "medium", "low"] = "high" if items else "low"
         return MessageExtraction(items=items, intent=intent, confidence=confidence)

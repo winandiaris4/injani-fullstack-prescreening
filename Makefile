@@ -1,4 +1,4 @@
-.PHONY: help up down test test-q1 test-q3 test-q5 test-q6 q1 q2 q3 q5 q6 psql logs
+.PHONY: help up down test test-q1 test-q2 test-q3 test-q4 test-q5 test-q6 q1 q2 q3 q5 q6 psql logs
 
 help:
 	@echo "╔══════════════════════════════════════════════════════════════════╗"
@@ -10,14 +10,16 @@ help:
 	@echo "    make down        - Menghentikan semua container"
 	@echo "    make q1          - Jalankan Q1 AI Extractor (http://localhost:8000)"
 	@echo "    make q2          - Jalankan Q2 SLA Dashboard (http://localhost:3000)"
-	@echo "    make q3          - Jalankan Q3 Cloud Tasks Worker (http://localhost:8001)"
+	@echo "    make q3          - Jalankan Q3 Cloud Tasks Worker (http://localhost:8003)"
 	@echo "    make q5          - Jalankan Q5 API Patterns (http://localhost:3001)"
 	@echo "    make q6          - Jalankan Q6 Async Worker & SSE (http://localhost:8002)"
 	@echo ""
-	@echo "  ▶ Menjalankan Automated Tests (Docker):"
-	@echo "    make test        - Jalankan SEMUA test (Q1, Q3, Q5, Q6)"
+	@echo "  ▶ Menjalankan Automated Tests & Build Verification (Docker):"
+	@echo "    make test        - Jalankan SEMUA test & build (Q1 s/d Q6)"
 	@echo "    make test-q1     - Jalankan evaluasi akurasi dataset Q1"
+	@echo "    make test-q2     - Validasi Lint, Typecheck & Production Build Q2"
 	@echo "    make test-q3     - Jalankan test Cloud Tasks Q3"
+	@echo "    make test-q4     - Verifikasi database PostgreSQL Q4"
 	@echo "    make test-q5     - Jalankan Jest unit tests Q5"
 	@echo "    make test-q6     - Jalankan test Idempotency & SSE Q6"
 	@echo ""
@@ -47,14 +49,23 @@ q5:
 q6:
 	docker compose up --build q6-async
 
-test: test-q1 test-q3 test-q6 test-q5
-	@echo "\n🎉 ALL TESTS PASSED SUCCESSFULLY! ✅\n"
+test: test-q1 test-q2 test-q3 test-q5 test-q6
+	@echo "\n🎉 ALL TESTS & BUILDS PASSED SUCCESSFULLY! ✅\n"
 
 test-q1:
 	docker compose run --rm q1-extractor pytest test_evaluation.py -v -s
 
+test-q2:
+	docker compose run --rm q2-dashboard sh -c "npx prisma generate && npm run lint && npx tsc --noEmit && npm run build"
+
 test-q3:
 	docker compose run --rm q3-worker pytest test_worker.py -v -s
+
+test-q4:
+	docker compose up -d postgres
+	@echo "Waiting for PostgreSQL to be ready..."
+	@sleep 2
+	docker exec injani-postgres psql -U postgres -d injani_poc -c "SELECT count(*) FROM transactions;"
 
 test-q5:
 	docker compose run --rm q5-api npm test

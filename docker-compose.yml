@@ -32,7 +32,7 @@ services:
       dockerfile: Dockerfile
     container_name: injani-q3-worker
     ports:
-      - "8001:8001"
+      - "8003:8001"
     volumes:
       - ./q3-cloud-tasks-worker:/app
 
@@ -69,18 +69,17 @@ services:
     image: redis:7-alpine
     container_name: injani-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
   # ─── Infrastructure: PostgreSQL 16 (for Q4 SQL Benchmark) ───────────────────
   postgres:
     image: postgres:16-alpine
     container_name: injani-postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=injani_poc
     volumes:
       - ./q4-pg-optimization:/docker-entrypoint-initdb.d:ro
-

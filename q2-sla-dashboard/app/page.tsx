@@ -1,10 +1,12 @@
 /**
  * Q2 — SLA Analytics Dashboard
- * React Server Component (RSC) — data fetching happens on the server.
- * Uses Tremor components for charts and data visualization.
+ * React Server Component (RSC) — data fetching happens directly on the server via Prisma.
  */
 
 import { Suspense } from "react";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,15 +39,118 @@ interface SLAData {
   };
 }
 
-// ─── Server-Side Data Fetching ────────────────────────────────────────────────
+// ─── Server-Side Data Fetching via Prisma ─────────────────────────────────────
 
 async function getSLAData(): Promise<SLAData> {
-  // In RSC, we can call our own API route or query DB directly
-  // For simplicity in PoC, calling the API route
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/sla`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch SLA data");
-  return res.json();
+  try {
+    const stepTypes = await prisma.stepType.findMany({
+      include: {
+        workflowSteps: {
+          where: { completedAt: { not: null } },
+          select: { assignedAt: true, completedAt: true },
+        },
+      },
+    });
+
+    const stepTypeStats = stepTypes.map((st) => {
+      const completedSteps = st.workflowSteps.filter((s) => s.completedAt);
+      const avgDuration =
+        completedSteps.length > 0
+          ? completedSteps.reduce((sum, s) => {
+              const duration =
+                (new Date(s.completedAt!).getTime() - new Date(s.assignedAt).getTime()) /
+                60000;
+              return sum + duration;
+            }, 0) / completedSteps.length
+          : 0;
+
+      return {
+        name: st.name,
+        avgDurationMinutes: Math.round(avgDuration),
+        slaTargetMinutes: st.slaTargetMinutes,
+        isBreached: avgDuration > st.slaTargetMinutes,
+      };
+    });
+
+    const workflows = await prisma.workflow.findMany({
+      include: {
+        department: { select: { name: true } },
+        steps: {
+          include: {
+            stepType: { select: { name: true, slaTargetMinutes: true } },
+            assignee: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const breachedWorkflows = workflows
+      .map((wf) => {
+        const breachedSteps = wf.steps.filter((step) => {
+          if (!step.completedAt) return false;
+          const duration =
+            (new Date(step.completedAt).getTime() - new Date(step.assignedAt).getTime()) /
+            60000;
+          return duration > step.stepType.slaTargetMinutes;
+        });
+
+        const totalDurationMinutes = wf.steps.reduce((sum, step) => {
+          if (!step.completedAt) return sum;
+          return (
+            sum +
+            (new Date(step.completedAt).getTime() - new Date(step.assignedAt).getTime()) /
+              60000
+          );
+        }, 0);
+
+        return {
+          id: wf.id,
+          title: wf.title,
+          department: wf.department.name,
+          status: wf.status,
+          createdAt: wf.createdAt.toISOString(),
+          totalDurationMinutes: Math.round(totalDurationMinutes),
+          breachedStepsCount: breachedSteps.length,
+          totalSteps: wf.steps.length,
+        };
+      })
+      .filter((wf) => wf.breachedStepsCount > 0)
+      .sort((a, b) => b.breachedStepsCount - a.breachedStepsCount)
+      .slice(0, 10);
+
+    const totalSteps = await prisma.workflowStep.count();
+    const allCompletedSteps = await prisma.workflowStep.findMany({
+      where: { completedAt: { not: null } },
+      include: { stepType: { select: { slaTargetMinutes: true } } },
+    });
+
+    const breachedStepsCount = allCompletedSteps.filter((step) => {
+      const duration =
+        (new Date(step.completedAt!).getTime() - new Date(step.assignedAt).getTime()) /
+        60000;
+      return duration > step.stepType.slaTargetMinutes;
+    }).length;
+
+    return {
+      stepTypeStats,
+      breachedWorkflows,
+      summary: {
+        totalWorkflows: workflows.length,
+        totalSteps,
+        breachRate:
+          totalSteps > 0 ? Math.round((breachedStepsCount / totalSteps) * 100) : 0,
+        breachedStepsCount,
+      },
+    };
+  } catch (error) {
+    console.error("[getSLAData] Database query error:", error);
+    return {
+      stepTypeStats: [],
+      breachedWorkflows: [],
+      summary: { totalWorkflows: 0, totalSteps: 0, breachRate: 0, breachedStepsCount: 0 },
+    };
+  }
 }
 
 // ─── Dashboard Components ─────────────────────────────────────────────────────
@@ -88,7 +193,7 @@ function MetricCard({
 }
 
 function BarChartSimple({ data }: { data: StepTypeStat[] }) {
-  const maxVal = Math.max(...data.flatMap((d) => [d.avgDurationMinutes, d.slaTargetMinutes]));
+  const maxVal = Math.max(1, ...data.flatMap((d) => [d.avgDurationMinutes, d.slaTargetMinutes]));
 
   return (
     <div>
@@ -343,4 +448,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-

@@ -1,15 +1,12 @@
-FROM node:22-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-ENV NODE_ENV=development
-
 COPY package.json ./
-RUN npm install
+RUN npm install --no-audit
 
 COPY . .
 
 EXPOSE 3001
 
 CMD ["npm", "run", "dev", "--", "-p", "3001"]
-

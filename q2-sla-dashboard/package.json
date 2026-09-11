@@ -12,21 +12,20 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@prisma/client": "^5.14.0",
-    "@tremor/react": "^3.18.3",
-    "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18"
+    "@prisma/client": "^5.22.0",
+    "next": "14.2.24",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.5",
-    "prisma": "^5.14.0",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.24",
+    "prisma": "^5.22.0",
     "tsx": "^4.15.7",
-    "typescript": "^5"
+    "typescript": "^5.4.5"
   }
 }
 

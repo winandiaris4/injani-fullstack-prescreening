@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+*.db
+*.db-journal
+dev.db
+
