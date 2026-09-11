@@ -13,8 +13,8 @@ Usage:
 
 import json
 import os
-import urllib.request
 import urllib.error
+import urllib.request
 from typing import Any
 
 EMULATOR_HOST = os.getenv("CLOUD_TASKS_EMULATOR_HOST", "localhost:8123")

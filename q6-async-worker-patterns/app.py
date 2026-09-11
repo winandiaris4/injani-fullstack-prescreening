@@ -17,7 +17,7 @@ import time
 import uuid
 from typing import AsyncIterator
 
-from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
 app = FastAPI(title="Injani Async Worker Patterns", version="1.0.0")

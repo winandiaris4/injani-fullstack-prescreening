@@ -10,8 +10,8 @@ Supports two modes:
 import json
 import os
 import re
-import urllib.request
 import urllib.error
+import urllib.request
 from typing import Literal
 
 from pydantic import BaseModel

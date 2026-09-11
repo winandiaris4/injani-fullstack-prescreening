@@ -11,7 +11,6 @@ Pattern:
 Menggunakan fakeredis untuk testing tanpa Redis real.
 """
 
-import json
 import uuid
 from typing import Any
 
