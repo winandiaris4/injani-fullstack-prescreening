@@ -136,6 +136,7 @@ describe("withErrorHandler HOF", () => {
   });
 
   it("converts unexpected Error to 500 INTERNAL_ERROR without leaking details", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     const handler = withErrorHandler(async () => {
       throw new Error("Some internal database error with sensitive info");
     });
@@ -149,6 +150,7 @@ describe("withErrorHandler HOF", () => {
     // Must not expose internal error message
     expect(body.error.message).not.toContain("sensitive info");
     expect(body.error.message).toBe("An unexpected error occurred");
+    consoleSpy.mockRestore();
   });
 });
 
