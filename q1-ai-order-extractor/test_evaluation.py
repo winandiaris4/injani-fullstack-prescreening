@@ -14,11 +14,10 @@ import json
 import os
 from pathlib import Path
 
-from fastapi.testclient import TestClient
-import pytest
-
 from app import app
 from extractor import MessageExtraction, OrderExtractor
+from fastapi.testclient import TestClient
+import pytest
 
 # Force MOCK_MODE so tests never need Ollama
 os.environ.setdefault("MOCK_MODE", "true")

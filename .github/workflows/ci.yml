@@ -38,9 +38,8 @@ jobs:
 
       - name: Lint with ruff (Q1, Q3, Q6)
         run: |
-          ruff check q1-ai-order-extractor/
-          ruff check q3-cloud-tasks-worker/
-          ruff check q6-async-worker-patterns/
+          ruff check --fix q1-ai-order-extractor/ q3-cloud-tasks-worker/ q6-async-worker-patterns/
+          ruff check q1-ai-order-extractor/ q3-cloud-tasks-worker/ q6-async-worker-patterns/
 
       - name: Run pytest — Q1 AI Order Extractor
         env:
