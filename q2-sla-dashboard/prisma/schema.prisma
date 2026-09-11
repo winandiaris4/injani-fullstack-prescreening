@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// SQLite for PoC — easy to run locally without any setup
+// To switch to PostgreSQL:
+//   1. Change provider to "postgresql"
+//   2. Update DATABASE_URL in .env to a PostgreSQL connection string
+//   3. Remove @db.Text annotations if needed
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Department {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  users     User[]
+  workflows Workflow[]
+
+  @@map("departments")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  department    Department     @relation(fields: [departmentId], references: [id])
+  departmentId  Int
+  workflowSteps WorkflowStep[]
+
+  @@map("users")
+}
+
+model StepType {
+  id               Int            @id @default(autoincrement())
+  name             String         @unique  // e.g. "Finance Approval", "Legal Review"
+  slaTargetMinutes Int                     // SLA threshold in minutes
+  workflowSteps    WorkflowStep[]
+
+  @@map("step_types")
+}
+
+model Workflow {
+  id           Int            @id @default(autoincrement())
+  title        String
+  department   Department     @relation(fields: [departmentId], references: [id])
+  departmentId Int
+  status       String         @default("in_progress") // in_progress | approved | rejected
+  createdAt    DateTime       @default(now())
+  steps        WorkflowStep[]
+
+  @@map("workflows")
+}
+
+model WorkflowStep {
+  id              Int       @id @default(autoincrement())
+  workflow        Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  workflowId      Int
+  stepType        StepType  @relation(fields: [stepTypeId], references: [id])
+  stepTypeId      Int
+  assignee        User      @relation(fields: [assigneeId], references: [id])
+  assigneeId      Int
+  assignedAt      DateTime
+  completedAt     DateTime? // NULL = still pending
+  // durationMinutes is computed in queries (SQLite doesn't support generated columns for time diffs)
+
+  @@map("workflow_steps")
+}
+

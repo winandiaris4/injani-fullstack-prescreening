@@ -1,0 +1,183 @@
+[
+  {
+    "id": 1,
+    "message": "I'd like 3 bags of cement and 2 tins of paint please",
+    "expected_intent": "order",
+    "expected_items": [
+      {"name": "cement", "quantity": 3, "unit": "bag"},
+      {"name": "paint", "quantity": 2, "unit": "tin"}
+    ]
+  },
+  {
+    "id": 2,
+    "message": "Can you send me 10 pieces of ceramic tile?",
+    "expected_intent": "order",
+    "expected_items": [
+      {"name": "ceramic tile", "quantity": 10, "unit": "piece"}
+    ]
+  },
+  {
+    "id": 3,
+    "message": "I need 5 kg of sand and 1 bag of gravel",
+    "expected_intent": "order",
+    "expected_items": [
+      {"name": "sand", "quantity": 5, "unit": "kg"},
+      {"name": "gravel", "quantity": 1, "unit": "bag"}
+    ]
+  },
+  {
+    "id": 4,
+    "message": "Please send 20 sheets of plywood",
+    "expected_intent": "order",
+    "expected_items": [
+      {"name": "plywood", "quantity": 20, "unit": "sheet"}
+    ]
+  },
+  {
+    "id": 5,
+    "message": "Order: 4 rolls of wire mesh",
+    "expected_intent": "order",
+    "expected_items": [
+      {"name": "wire mesh", "quantity": 4, "unit": "roll"}
+    ]
+  },
+  {
+    "id": 6,
+    "message": "Do you have white tiles available in stock?",
+    "expected_intent": "inquiry",
+    "expected_items": [
+      {"name": "white tiles", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 7,
+    "message": "How much does a bag of cement cost?",
+    "expected_intent": "inquiry",
+    "expected_items": [
+      {"name": "cement", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 8,
+    "message": "Is red brick available?",
+    "expected_intent": "inquiry",
+    "expected_items": [
+      {"name": "red brick", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 9,
+    "message": "Can you check if you still have steel rebar in stock?",
+    "expected_intent": "inquiry",
+    "expected_items": [
+      {"name": "steel rebar", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 10,
+    "message": "What is the price of roof tiles per piece?",
+    "expected_intent": "inquiry",
+    "expected_items": [
+      {"name": "roof tiles", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 11,
+    "message": "The bricks I received last week were all broken!",
+    "expected_intent": "complaint",
+    "expected_items": [
+      {"name": "bricks", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 12,
+    "message": "I have a complaint — the paint delivered was the wrong color",
+    "expected_intent": "complaint",
+    "expected_items": [
+      {"name": "paint", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 13,
+    "message": "My order had damaged tiles. This is a serious problem.",
+    "expected_intent": "complaint",
+    "expected_items": [
+      {"name": "tiles", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 14,
+    "message": "There is an issue with the missing bags from my last delivery",
+    "expected_intent": "complaint",
+    "expected_items": [
+      {"name": "bags", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 15,
+    "message": "The cement bags were broken and the contents are all spilled",
+    "expected_intent": "complaint",
+    "expected_items": [
+      {"name": "cement bags", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 16,
+    "message": "Tolong kirim 6 sak semen dan 3 kaleng cat",
+    "expected_intent": "order",
+    "expected_items": [
+      {"name": "semen", "quantity": 6, "unit": "sak"},
+      {"name": "cat", "quantity": 3, "unit": "kaleng"}
+    ]
+  },
+  {
+    "id": 17,
+    "message": "Mau pesan 15 pcs keramik ukuran 60x60",
+    "expected_intent": "order",
+    "expected_items": [
+      {"name": "keramik", "quantity": 15, "unit": "pcs"}
+    ]
+  },
+  {
+    "id": 18,
+    "message": "Ada stok pasir tidak? Mau beli 2 truk",
+    "expected_intent": "inquiry",
+    "expected_items": [
+      {"name": "pasir", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 19,
+    "message": "Harga besi beton 10mm berapa per batang?",
+    "expected_intent": "inquiry",
+    "expected_items": [
+      {"name": "besi beton", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 20,
+    "message": "Cat tembok yang saya terima warnanya salah, saya komplain!",
+    "expected_intent": "complaint",
+    "expected_items": [
+      {"name": "cat tembok", "quantity": null, "unit": null}
+    ]
+  },
+  {
+    "id": 21,
+    "message": "Send 2 boxes of floor adhesive and 1 unit of mixing drill",
+    "expected_intent": "order",
+    "expected_items": [
+      {"name": "floor adhesive", "quantity": 2, "unit": "box"},
+      {"name": "mixing drill", "quantity": 1, "unit": "unit"}
+    ]
+  },
+  {
+    "id": 22,
+    "message": "Do you stock 50mm PVC pipes?",
+    "expected_intent": "inquiry",
+    "expected_items": [
+      {"name": "pvc pipes", "quantity": null, "unit": null}
+    ]
+  }
+]
+

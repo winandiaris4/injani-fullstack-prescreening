@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── BACKEND CI ────────────────────────────────────────────────────────────
+  backend-ci:
+    name: "Python Backend (Q1, Q3, Q6)"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: pip-
+
+      - name: Install all Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install ruff pytest pytest-cov pytest-asyncio fakeredis httpx fastapi uvicorn pydantic arq
+
+      - name: Lint with ruff (Q1, Q3, Q6)
+        run: |
+          ruff check q1-ai-order-extractor/
+          ruff check q3-cloud-tasks-worker/
+          ruff check q6-async-worker-patterns/
+
+      - name: Run pytest — Q1 AI Order Extractor
+        env:
+          MOCK_MODE: "true"
+        run: |
+          pytest q1-ai-order-extractor/ -v --tb=short --cov=q1-ai-order-extractor
+
+      - name: Run pytest — Q3 Cloud Tasks Worker
+        run: |
+          pytest q3-cloud-tasks-worker/ -v --tb=short --cov=q3-cloud-tasks-worker
+
+      - name: Run pytest — Q6 Async Worker Patterns
+        run: |
+          pytest q6-async-worker-patterns/ -v --tb=short --cov=q6-async-worker-patterns
+
+  # ─── FRONTEND CI — Q2 SLA Dashboard ───────────────────────────────────────
+  frontend-q2:
+    name: "Next.js Frontend — Q2 SLA Dashboard"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: q2-sla-dashboard/package-lock.json
+
+      - name: Install dependencies
+        working-directory: q2-sla-dashboard
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: q2-sla-dashboard
+        env:
+          DATABASE_URL: "file:./dev.db"
+        run: npx prisma generate
+
+      - name: Lint
+        working-directory: q2-sla-dashboard
+        run: npm run lint
+
+      - name: Type check
+        working-directory: q2-sla-dashboard
+        run: npx tsc --noEmit
+
+      - name: Build
+        working-directory: q2-sla-dashboard
+        env:
+          DATABASE_URL: "file:./dev.db"
+          NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
+        run: npm run build
+
+  # ─── FRONTEND CI — Q5 Next.js API Patterns ────────────────────────────────
+  frontend-q5:
+    name: "Next.js API Patterns — Q5"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: q5-nextjs-api-patterns/package-lock.json
+
+      - name: Install dependencies
+        working-directory: q5-nextjs-api-patterns
+        run: npm ci
+
+      - name: Lint
+        working-directory: q5-nextjs-api-patterns
+        run: npm run lint
+
+      - name: Run Jest tests
+        working-directory: q5-nextjs-api-patterns
+        run: npm test
+
