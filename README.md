@@ -46,20 +46,51 @@ CI/CD      : GitHub Actions (Lint → Test → Build)
 
 ---
 
-## ⚡ Quick Start per Modul
+## ⚡ Quick Start (Docker — Recommended 🚀)
+
+Menjalankan dan menguji seluruh modul dalam 1 perintah tanpa perlu setup Python/Node.js di OS lokal:
+
+```bash
+# 1. Jalankan SEMUA automated tests (Q1, Q3, Q5, Q6)
+make test
+# atau: docker compose run --rm q1-extractor pytest test_evaluation.py -v -s
+
+# 2. Jalankan Q2 SLA Analytics Dashboard (buka http://localhost:3000)
+make q2
+# atau: docker compose up q2-dashboard
+
+# 3. Jalankan Q1 AI Order Extractor (buka http://localhost:8000/docs)
+make q1
+# atau: docker compose up q1-extractor
+
+# 4. Jalankan Q6 Async Worker & SSE (buka http://localhost:8002/docs)
+make q6
+# atau: docker compose up q6-async
+
+# 5. Jalankan SEMUA modul & database sekaligus di background
+make up
+# Hentikan semua container:
+make down
+```
+
+---
+
+## 💻 Manual Local Execution (Native)
+
+Jika ingin menjalankan secara native per modul tanpa Docker:
 
 ### Q1 — AI Order Extractor
 ```bash
 cd q1-ai-order-extractor
 pip install -r requirements.txt
 MOCK_MODE=true pytest -v          # Run tests (no Ollama needed)
-MOCK_MODE=true uvicorn app:app --reload  # Run server
+MOCK_MODE=true uvicorn app:app --reload  # Run server (http://localhost:8000)
 ```
 
 ### Q2 — SLA Dashboard
 ```bash
 cd q2-sla-dashboard
-npm ci
+npm install
 npx prisma db push                # Create SQLite schema
 npm run db:seed                   # Fill with dummy data
 npm run dev                       # Open http://localhost:3000
@@ -86,7 +117,7 @@ psql -U postgres -d mydb
 ### Q5 — Next.js API Patterns
 ```bash
 cd q5-nextjs-api-patterns
-npm ci
+npm install
 npm test                          # Run Jest unit tests
 ```
 

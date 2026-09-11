@@ -1,0 +1,86 @@
+services:
+  # ─── Q1: AI WhatsApp Order Extractor ─────────────────────────────────────────
+  q1-extractor:
+    build:
+      context: ./q1-ai-order-extractor
+      dockerfile: Dockerfile
+    container_name: injani-q1-extractor
+    ports:
+      - "8000:8000"
+    environment:
+      - MOCK_MODE=true
+    volumes:
+      - ./q1-ai-order-extractor:/app
+
+  # ─── Q2: SLA Analytics Dashboard (Next.js 14) ────────────────────────────────
+  q2-dashboard:
+    build:
+      context: ./q2-sla-dashboard
+      dockerfile: Dockerfile
+    container_name: injani-q2-dashboard
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./q2-sla-dashboard:/app
+      - /app/node_modules
+      - /app/.next
+
+  # ─── Q3: Cloud Tasks Worker ──────────────────────────────────────────────────
+  q3-worker:
+    build:
+      context: ./q3-cloud-tasks-worker
+      dockerfile: Dockerfile
+    container_name: injani-q3-worker
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./q3-cloud-tasks-worker:/app
+
+  # ─── Q5: Next.js API Patterns ────────────────────────────────────────────────
+  q5-api:
+    build:
+      context: ./q5-nextjs-api-patterns
+      dockerfile: Dockerfile
+    container_name: injani-q5-api
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./q5-nextjs-api-patterns:/app
+      - /app/node_modules
+      - /app/.next
+
+  # ─── Q6: Async Worker Patterns ───────────────────────────────────────────────
+  q6-async:
+    build:
+      context: ./q6-async-worker-patterns
+      dockerfile: Dockerfile
+    container_name: injani-q6-async
+    ports:
+      - "8002:8002"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./q6-async-worker-patterns:/app
+
+  # ─── Infrastructure: Redis 7 ─────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: injani-redis
+    ports:
+      - "6379:6379"
+
+  # ─── Infrastructure: PostgreSQL 16 (for Q4 SQL Benchmark) ───────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: injani-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=injani_poc
+    volumes:
+      - ./q4-pg-optimization:/docker-entrypoint-initdb.d:ro
+
