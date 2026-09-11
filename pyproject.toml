@@ -1,0 +1,18 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# Check for logical errors and pyflakes issues, without failing on import order
+select = ["E", "F", "W"]
+ignore = ["E501", "I001"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = [
+    "q1-ai-order-extractor",
+    "q3-cloud-tasks-worker",
+    "q6-async-worker-patterns"
+]
+python_files = ["test_*.py"]
+
