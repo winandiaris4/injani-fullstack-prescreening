@@ -159,5 +159,5 @@ Semua jobs berjalan paralel. Badge CI di atas mencerminkan status build terkini.
 
 ## 🔗 Referensi
 
-- 📄 [Pre-Test](../project-analytic/job-opportunity/INJANI_SYSTEMS/panduan-lengkap-pretest.md)
+- 📄 [Pre-Test](../project-analytic/job-opportunity/INJANI_SYSTEMS/pretest.md)
 - 📋 [Rencana PoC](../project-analytic/job-opportunity/INJANI_SYSTEMS/poc-injani-plan.md)
