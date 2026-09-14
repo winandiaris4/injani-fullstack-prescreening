@@ -4,7 +4,7 @@
  */
 
 import { Suspense } from "react";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -52,11 +52,11 @@ async function getSLAData(): Promise<SLAData> {
       },
     });
 
-    const stepTypeStats = stepTypes.map((st) => {
-      const completedSteps = st.workflowSteps.filter((s) => s.completedAt);
+    const stepTypeStats: StepTypeStat[] = (stepTypes as any[]).map((st: any) => {
+      const completedSteps = st.workflowSteps.filter((s: any) => s.completedAt);
       const avgDuration =
         completedSteps.length > 0
-          ? completedSteps.reduce((sum, s) => {
+          ? completedSteps.reduce((sum: number, s: any) => {
               const duration =
                 (new Date(s.completedAt!).getTime() - new Date(s.assignedAt).getTime()) /
                 60000;
@@ -85,9 +85,9 @@ async function getSLAData(): Promise<SLAData> {
       orderBy: { createdAt: "desc" },
     });
 
-    const breachedWorkflows = workflows
-      .map((wf) => {
-        const breachedSteps = wf.steps.filter((step) => {
+    const breachedWorkflows: BreachedWorkflow[] = (workflows as any[])
+      .map((wf: any): BreachedWorkflow => {
+        const breachedSteps = wf.steps.filter((step: any) => {
           if (!step.completedAt) return false;
           const duration =
             (new Date(step.completedAt).getTime() - new Date(step.assignedAt).getTime()) /
@@ -95,7 +95,7 @@ async function getSLAData(): Promise<SLAData> {
           return duration > step.stepType.slaTargetMinutes;
         });
 
-        const totalDurationMinutes = wf.steps.reduce((sum, step) => {
+        const totalDurationMinutes = wf.steps.reduce((sum: number, step: any) => {
           if (!step.completedAt) return sum;
           return (
             sum +
@@ -109,14 +109,14 @@ async function getSLAData(): Promise<SLAData> {
           title: wf.title,
           department: wf.department.name,
           status: wf.status,
-          createdAt: wf.createdAt.toISOString(),
+          createdAt: wf.createdAt instanceof Date ? wf.createdAt.toISOString() : String(wf.createdAt),
           totalDurationMinutes: Math.round(totalDurationMinutes),
           breachedStepsCount: breachedSteps.length,
           totalSteps: wf.steps.length,
         };
       })
-      .filter((wf) => wf.breachedStepsCount > 0)
-      .sort((a, b) => b.breachedStepsCount - a.breachedStepsCount)
+      .filter((wf: BreachedWorkflow) => wf.breachedStepsCount > 0)
+      .sort((a: BreachedWorkflow, b: BreachedWorkflow) => b.breachedStepsCount - a.breachedStepsCount)
       .slice(0, 10);
 
     const totalSteps = await prisma.workflowStep.count();
@@ -125,7 +125,7 @@ async function getSLAData(): Promise<SLAData> {
       include: { stepType: { select: { slaTargetMinutes: true } } },
     });
 
-    const breachedStepsCount = allCompletedSteps.filter((step) => {
+    const breachedStepsCount = (allCompletedSteps as any[]).filter((step: any) => {
       const duration =
         (new Date(step.completedAt!).getTime() - new Date(step.assignedAt).getTime()) /
         60000;
